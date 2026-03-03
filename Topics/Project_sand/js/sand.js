@@ -2,6 +2,9 @@ window.onload = function () {
 
     let mousePressed = false
 
+    let mouseX = 0;
+    let mouseY = 0;
+
     let canvas = document.getElementById("testCanvas");
     //get the context
     let context = canvas.getContext("2d");
@@ -49,42 +52,52 @@ window.onload = function () {
     canvas.addEventListener("mouseup", sandUp)
 
 
+
     function sandMove(event) {
+
         if (mousePressed === true) {
 
 
             let boundingBox = canvas.getBoundingClientRect()
             // console.log(boundingBox)
-            let mouseX = event.clientX - boundingBox.x
-            let mouseY = event.clientY - boundingBox.y
+            mouseX = event.clientX - boundingBox.x
+            mouseY = event.clientY - boundingBox.y
 
-            let mouseCol = Math.floor(mouseX / w);
-            let mouseRow = Math.floor(mouseY / w);
 
-            // Randomly add an area of sand particles 
-            let matrix = 3;
-            let extent = Math.floor(matrix / 2);
-            for (let i = -extent; i <= extent; i++) {
-                for (let j = -extent; j <= extent; j++) {
-                    if (Math.random() < 0, 75) {
-                        let col = mouseCol + i;
-                        let row = mouseRow + j;
+        }
 
-                        if (withinCols(col) && withinRows(row)) {
-                            grid[col][row] = 1;
-                            // grid[col][row] = hueValue;
+    }
+    function animateSand() {
 
-                        }
+        let mouseCol = Math.floor(mouseX / w);
+        let mouseRow = Math.floor(mouseY / w);
+
+        // Randomly add an area of sand particles 
+        let matrix = 3;
+        let extent = Math.floor(matrix / 2);
+        for (let i = -extent; i <= extent; i++) {
+            for (let j = -extent; j <= extent; j++) {
+                if (Math.random() < 0, 75) {
+                    let col = mouseCol + i;
+                    let row = mouseRow + j;
+
+                    if (withinCols(col) && withinRows(row)) {
+                        grid[col][row] = 1;
+                        // grid[col][row] = hueValue;
+
                     }
                 }
             }
-
         }
     }
-
     function sandDown(event) {
         mousePressed = true
         console.log("sandDown")
+
+        let boundingBox = canvas.getBoundingClientRect()
+        // console.log(boundingBox)
+        mouseX = event.clientX - boundingBox.x
+        mouseY = event.clientY - boundingBox.y
     }
 
     function sandUp(event) {
@@ -94,6 +107,10 @@ window.onload = function () {
 
     window.requestAnimationFrame(draw)
     function draw() {
+
+        if (mousePressed === true) {
+            animateSand();
+        }
 
         context.clearRect(0, 0, canvas.width, canvas.height);
         //draw sand 
