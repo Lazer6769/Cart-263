@@ -24,10 +24,12 @@ window.onload = function () {
     //let functions
     //the grid 
     let grid;
+    let velocityGrid;
     // how big is each square 
     let w = 5;
     let cols, rows;
-    // let hueValue = 200;
+    let hueValue = 200;
+    let gravity = 0.1;
 
     // check if a row is within bounds 
     function withinCols(i) {
@@ -37,9 +39,11 @@ window.onload = function () {
     function withinRows(j) {
         return j >= 0 && j <= rows - 1;
     }
+
     cols = canvas.width / w;
     rows = canvas.height / w;
     grid = make2DArray(cols, rows);
+    velocityGrid = make2DArray(cols, rows, 1);
 
 
     // // get the canvas
@@ -68,7 +72,8 @@ window.onload = function () {
 
     }
     function animateSand() {
-
+        console.log(grid)
+        //console.log(velocityGrid)
         let mouseCol = Math.floor(mouseX / w);
         let mouseRow = Math.floor(mouseY / w);
 
@@ -82,12 +87,18 @@ window.onload = function () {
                     let row = mouseRow + j;
 
                     if (withinCols(col) && withinRows(row)) {
-                        grid[col][row] = 1;
-                        // grid[col][row] = hueValue;
+                        // grid[col][row] = 1;
+                        grid[col][row] = hueValue;
+                        velocityGrid[col][row] = 1;
+
 
                     }
                 }
             }
+        }
+        hueValue += 0.5;
+        if (hueValue > 360) {
+            hueValue = 1;
         }
     }
     function sandDown(event) {
@@ -122,7 +133,7 @@ window.onload = function () {
                 // noStroke();
                 if (grid[i][j] > 0) {
 
-                    context.fillStyle = "rgb(187, 231, 254)"
+                    context.fillStyle = grid[i][j];
                     // fill(grid[i][j], 255, 255);
                     //where they go
                     let x = i * w;
@@ -136,50 +147,66 @@ window.onload = function () {
 
         //Create an array for the next frame of animation 
         let nextGrid = make2DArray(cols, rows);
+        let nextVelocityGrid = make2DArray(cols, rows);
         // check every cell 
         for (let i = 0; i < cols; i++) {
             for (let j = 0; j < rows; j++) {
                 //what is the state?
                 let state = grid[i][j];
-
+                let velocity = velocityGrid[i][j];
+                let moved = false;
                 //if it's a piece of sand!
                 if (state > 0) {
                     //what is below
-                    let below = grid[i][j + 1];
-                    //randomly go left and right 
-                    let dir = 1
-                    if (Math.random() < 0.5) {
-                        dir *= -1
-                    }
+                    let newPos = Math.ceil(j + velocity);
+                    for (let y = newPos; y > j; y--) {
+                        let below = grid[i][y];
+                        //randomly go left and right 
+                        let dir = 1
+                        if (Math.random() < 0.5) {
+                            dir *= -1
+                        }
 
-                    //check below left or right
-                    let belowA = -1;
-                    let belowB = -1;
+                        //check below left or right
+                        let belowA = -1;
+                        let belowB = -1;
 
-                    if (withinCols(i + dir)) {
-                        //R
-                        belowA = grid[i + dir][j + 1]
+                        if (withinCols(i + dir)) {
+                            //R
+                            belowA = grid[i + dir][y]
+                        }
+                        if (withinCols(i - dir)) {
+                            //L
+                            belowB = grid[i - dir][y]
+                        }
+                        //can if fall below or left or right 
+                        if (below === 0) {
+                            nextGrid[i][y] = state;
+                            nextVelocityGrid[i][y] = velocity + gravity;
+                            moved = true;
+                        } else if (belowA === 0) {
+                            nextGrid[i + dir][y] = state;
+                            nextVelocityGrid[i + dir][y] = velocity + gravity;
+                            moved = true;
+                        } else if (belowB === 0) {
+                            nextGrid[i - dir][y] = state;
+                            nextVelocityGrid[i - dir][y] = velocity + gravity;
+                            moved = true;
+                            //stay put
+                        } else {
+
+
+                        }
                     }
-                    if (withinCols(i - dir)) {
-                        //L
-                        belowB = grid[i - dir][j + 1]
-                    }
-                    //can if fall below or left or right 
-                    if (below === 0) {
-                        nextGrid[i][j + 1] = state;
-                    } else if (belowA === 0) {
-                        nextGrid[i + dir][j + 1] = state;
-                    } else if (belowB === 0) {
-                        nextGrid[i - dir][j + 1] = state;
-                        //stay put
-                    } else {
-                        nextGrid[i][j] = state;
-                    }
+                }
+                if (state > 0 && !moved) {
+                    nextGrid[i][j] = state;
+                    nextVelocityGrid[i][j] = velocityGrid[i][j] + gravity;
                 }
             }
         }
         grid = nextGrid;
-
+        velocityGrid = nextVelocityGrid
 
         window.requestAnimationFrame(draw)
     }
