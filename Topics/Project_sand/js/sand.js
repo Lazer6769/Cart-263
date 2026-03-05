@@ -30,7 +30,7 @@ window.onload = function () {
     let cols, rows;
     let hueValue = 200;
     //let gravity = 0.1;
-    let gravityValue = 0.2;
+    let gravityValue = 0.1;
     let matrixValue = 1
     let extentValue = 1
 
@@ -70,7 +70,7 @@ window.onload = function () {
     }
 
     gravitySlider.oninput = function () {
-        gravityValue = this.value
+        gravityValue = parseFloat(this.value);
     }
 
     function sandMove(event) {
@@ -135,9 +135,17 @@ window.onload = function () {
         console.log("sandUp")
     }
 
+
+
     window.requestAnimationFrame(draw)
     function draw() {
+        if (!grid.flat().includes(0)) {
+            console.log("ya")
+            grid = make2DArray(cols, rows);
+            velocityGrid = make2DArray(cols, rows, 1);
 
+
+        }
         if (mousePressed === true) {
             animateSand();
         }
@@ -162,6 +170,7 @@ window.onload = function () {
                     // square(x, y, w);
                 }
             }
+
         }
 
         //Create an array for the next frame of animation 
@@ -169,9 +178,13 @@ window.onload = function () {
         let nextVelocityGrid = make2DArray(cols, rows);
         // check every cell 
 
+
+
+
         for (let i = 0; i < cols; i++) {
             for (let j = 0; j < rows; j++) {
                 let gravity = gravityValue;
+
                 //what is the state?
                 let state = grid[i][j];
                 let velocity = velocityGrid[i][j];
