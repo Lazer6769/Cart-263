@@ -29,7 +29,10 @@ window.onload = function () {
     let w = 5;
     let cols, rows;
     let hueValue = 200;
-    let gravity = 0.1;
+    //let gravity = 0.1;
+    let gravityValue = 0.2;
+    let matrixValue = 1
+    let extentValue = 1
 
     // check if a row is within bounds 
     function withinCols(i) {
@@ -54,8 +57,21 @@ window.onload = function () {
     canvas.addEventListener("mousemove", sandMove)
     canvas.addEventListener("mousedown", sandDown)
     canvas.addEventListener("mouseup", sandUp)
+    let matrixSlider = document.getElementById("matrixSlider");
+    let extentSlider = document.getElementById("extentSlider");
+    let gravitySlider = document.getElementById("gravitySlider");
 
+    matrixSlider.oninput = function () {
+        matrixValue = this.value
+    }
 
+    extentSlider.oninput = function () {
+        extentValue = this.value
+    }
+
+    gravitySlider.oninput = function () {
+        gravityValue = this.value
+    }
 
     function sandMove(event) {
 
@@ -72,17 +88,19 @@ window.onload = function () {
 
     }
     function animateSand() {
-        console.log(grid)
+
+        // console.log(gravity)
+        // console.log(grid)
         //console.log(velocityGrid)
         let mouseCol = Math.floor(mouseX / w);
         let mouseRow = Math.floor(mouseY / w);
 
         // Randomly add an area of sand particles 
-        let matrix = 3;
-        let extent = Math.floor(matrix / 2);
+        let matrix = matrixValue;
+        let extent = Math.floor(matrix / extentValue);
         for (let i = -extent; i <= extent; i++) {
             for (let j = -extent; j <= extent; j++) {
-                if (Math.random() < 0, 75) {
+                if (Math.random() < 0.75) {
                     let col = mouseCol + i;
                     let row = mouseRow + j;
 
@@ -90,6 +108,7 @@ window.onload = function () {
                         // grid[col][row] = 1;
                         grid[col][row] = hueValue;
                         velocityGrid[col][row] = 1;
+                        //console.log(grid[col][row])
 
 
                     }
@@ -133,7 +152,7 @@ window.onload = function () {
                 // noStroke();
                 if (grid[i][j] > 0) {
 
-                    context.fillStyle = grid[i][j];
+                    context.fillStyle = `hsl(${grid[i][j]}, 100%, 50%)`
                     // fill(grid[i][j], 255, 255);
                     //where they go
                     let x = i * w;
@@ -149,8 +168,10 @@ window.onload = function () {
         let nextGrid = make2DArray(cols, rows);
         let nextVelocityGrid = make2DArray(cols, rows);
         // check every cell 
+
         for (let i = 0; i < cols; i++) {
             for (let j = 0; j < rows; j++) {
+                let gravity = gravityValue;
                 //what is the state?
                 let state = grid[i][j];
                 let velocity = velocityGrid[i][j];
