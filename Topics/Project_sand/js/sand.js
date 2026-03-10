@@ -8,7 +8,7 @@ window.onload = function () {
     let canvas = document.getElementById("testCanvas");
     //get the context
     let context = canvas.getContext("2d");
-
+    //creates the array 
     function make2DArray(cols, rows) {
         let arr = new Array(cols);
         for (let i = 0; i < arr.length; i++) {
@@ -42,10 +42,13 @@ window.onload = function () {
     function withinRows(j) {
         return j >= 0 && j <= rows - 1;
     }
-
+    // columms 
     cols = canvas.width / w;
+    //rows
     rows = canvas.height / w;
+    //grids
     grid = make2DArray(cols, rows);
+    //velocity
     velocityGrid = make2DArray(cols, rows, 1);
 
 
@@ -53,10 +56,14 @@ window.onload = function () {
     // let canvas = document.getElementById("testCanvas");
     // //get the context
     // let context = canvas.getContext("2d");
-
+    // when mouse moves 
     canvas.addEventListener("mousemove", sandMove)
+    // when mouse is down
     canvas.addEventListener("mousedown", sandDown)
+    //when mouse is up 
     canvas.addEventListener("mouseup", sandUp)
+
+    //various sliders that changes how the sand should work 
     let matrixSlider = document.getElementById("matrixSlider");
     let extentSlider = document.getElementById("extentSlider");
     let gravitySlider = document.getElementById("gravitySlider");
@@ -77,7 +84,7 @@ window.onload = function () {
 
         if (mousePressed === true) {
 
-
+            // this allows the mouse to work properly with the various sizes of the canvas 
             let boundingBox = canvas.getBoundingClientRect()
             // console.log(boundingBox)
             mouseX = event.clientX - boundingBox.x
@@ -91,7 +98,7 @@ window.onload = function () {
 
         // console.log(gravity)
         // console.log(grid)
-        //console.log(velocityGrid)
+        // console.log(velocityGrid)
         let mouseCol = Math.floor(mouseX / w);
         let mouseRow = Math.floor(mouseY / w);
 
@@ -114,22 +121,28 @@ window.onload = function () {
                     }
                 }
             }
-        }
+        } // continuous looping colours 
         hueValue += 0.5;
         if (hueValue > 360) {
             hueValue = 1;
         }
     }
+    // when sand is down == true 
+    // sand also comes out 
     function sandDown(event) {
         mousePressed = true
         console.log("sandDown")
-
+        // bouding box = canvas 
         let boundingBox = canvas.getBoundingClientRect()
         // console.log(boundingBox)
+
+        //  sand follows mouse 
+        // if mouse is within canvas 
+        // if mouse and canvas with in bounding box
         mouseX = event.clientX - boundingBox.x
         mouseY = event.clientY - boundingBox.y
     }
-
+    // when sand is up sand stops coming out 
     function sandUp(event) {
         mousePressed = false
         console.log("sandUp")
@@ -146,6 +159,7 @@ window.onload = function () {
 
 
         }
+        // if mousePressed true sand comes out 
         if (mousePressed === true) {
             animateSand();
         }
@@ -183,6 +197,7 @@ window.onload = function () {
 
         for (let i = 0; i < cols; i++) {
             for (let j = 0; j < rows; j++) {
+                // gives gravity a value 
                 let gravity = gravityValue;
 
                 //what is the state?
@@ -213,7 +228,7 @@ window.onload = function () {
                             //L
                             belowB = grid[i - dir][y]
                         }
-                        //can if fall below or left or right 
+                        //can it fall below or left or right 
                         if (below === 0) {
                             nextGrid[i][y] = state;
                             nextVelocityGrid[i][y] = velocity + gravity;
