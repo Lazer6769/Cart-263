@@ -1,6 +1,6 @@
 # ***Project 1 Responses, By: Jordan Lobasso*** 
 
-Khoung 
+Khuong 
 https://pentonfreak.github.io/CART263/PROJECT/index.html:
 
 When I first saw Khuong’s project in development, I was already interested in what he was cooking for his project, even though the commands he put on his project were simple to understand, but the visuals that he created for his project are what stood out to me. The way he made the eyes interactive is what also made me jump with joy. I found it quite entertaining going through each interaction. My personal favourite interaction that he made was the last option, where we can press and hold the space bar. I was shocked when I first saw it because I did not know what to expect from it until I pressed it again and saw that the eyes changed from a glowy white into a spinning glowing red. I was shocked at first by what I saw, excited to watch it move in its entirety and excited to see what else he can create.  
