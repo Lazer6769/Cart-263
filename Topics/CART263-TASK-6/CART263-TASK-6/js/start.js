@@ -42,9 +42,14 @@ function go_all_stuff() {
     drawingBoardC.display();
 
     let drawingBoardD = new DrawingBoard(theCanvases[3], theContexts[3], theCanvases[3].id);
-    drawingBoardD.addObj(new VideoObj(0, 0, 400, 300, videoEl, drawingBoardD.context))
+    let videoObj = new VideoObj(0, 0, 400, 300, videoEl, drawingBoardD.context);
+    videoObj.board = drawingBoardD;
+    drawingBoardD.addObj(videoObj);
     drawingBoardD.display();
 
+
+
+    // we already update rectangle from VideoObj.update() using board.mouseOffset
 
     /*** RUN THE ANIMATION LOOP  */
     window.requestAnimationFrame(animationLoop);
@@ -132,7 +137,8 @@ function go_all_stuff() {
      *  2: apply some arbitrary animation to the rectangle obj (change the properties in the update method provided)
      * -> the code for the microphone has NOT been added  - you need to implement it correctly...
      *  
-     */
+     */  // make rectangle follow mouse on partD canvas and change color on click
+
 
     /** TASK 3:(Drawing Board C) - 
      *  1: Affect the free-style shape by input from the microphone somehow, in real time...
@@ -157,7 +163,15 @@ function go_all_stuff() {
      * PLEASE NOTE: there will be marks taken off if you ignore the instructions ;)
      *  
      */
-
+    let originalClickCanvasD = drawingBoardD.clickCanvas;
+    drawingBoardD.clickCanvas = function (e) {
+        originalClickCanvasD.call(this, e);
+        if (this.drawingBoardId === "partD") {
+            const colors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#00FFFF", "#FF00FF", "#FFFFFF", "#000000"];
+            let randomColor = colors[Math.floor(Math.random() * colors.length)];
+            videoObj.changeColor(randomColor);
+        }
+    };
 
 
 
