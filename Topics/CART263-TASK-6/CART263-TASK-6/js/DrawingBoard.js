@@ -4,6 +4,8 @@ class DrawingBoard {
     this.canvas = canvas;
     this.context = context;
     this.objectsOnCanvas = [];
+    this.mouseOffsetX = 0;
+    this.mouseOffsetY = 0;
     let self = this;
     this.drawingBoardId = drawingBoardId;
     //each element has a mouse clicked and a mouse over
@@ -74,8 +76,9 @@ class DrawingBoard {
 
   /* method to add animate objects on canvas */
   animate() {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
     for (let i = 0; i < this.objectsOnCanvas.length; i++) {
-      this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+
       this.objectsOnCanvas[i].update();
       this.objectsOnCanvas[i].display();
     }

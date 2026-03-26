@@ -24,8 +24,12 @@ function go_all_stuff() {
     }
 
     let drawingBoardA = new DrawingBoard(theCanvases[0], theContexts[0], theCanvases[0].id);
+    drawingBoardA.mouseOffsetX = 100;
+    drawingBoardA.mouseOffsetY = 100;
     //add a circular object to canvas A
-    drawingBoardA.addObj(new CircularObj(100, 100, 20, "#FFC300", "#E6E6FA", drawingBoardA.context))
+    let originalCircle = new CircularObj(100, 100, 20, "#FFC300", "#E6E6FA", drawingBoardA.context);
+    originalCircle.board = drawingBoardA;
+    drawingBoardA.addObj(originalCircle);
     drawingBoardA.display();
 
 
@@ -89,7 +93,7 @@ function go_all_stuff() {
     // Modify update method
     CircularObj.prototype.update = function () {
         if (this.board) {
-            let speed = 0.05;
+            let speed = 0.2;
             this.x += (this.board.mouseOffsetX - this.x) * speed;
             this.y += (this.board.mouseOffsetY - this.y) * speed;
         }
@@ -101,11 +105,10 @@ function go_all_stuff() {
         let mouseOffsetX = parseInt(e.clientX - canvasBoundingRegion.x);
         let mouseOffsetY = parseInt(e.clientY - canvasBoundingRegion.y);
 
-        // Remove circle on double click if mouse is over it
+        // Remove circles on double click if mouse is over them
         for (let i = drawingBoardA.objectsOnCanvas.length - 1; i >= 0; i--) {
             if (drawingBoardA.objectsOnCanvas[i].isPointInside(mouseOffsetX, mouseOffsetY)) {
                 drawingBoardA.objectsOnCanvas.splice(i, 1);
-                break; // remove only one
             }
         }
     });
@@ -115,14 +118,17 @@ function go_all_stuff() {
     drawingBoardA.clickCanvas = function (e) {
         originalClickCanvas.call(this, e);
         if (this.drawingBoardId === "partA") {
-            // Add new circle on click
-            let colors = ["#FF5733", "#33FF57", "#3357FF", "#F033FF", "#FF33A1", "#33FFF0"];
-            let fillColor = colors[Math.floor(Math.random() * colors.length)];
-            let strokeColor = colors[Math.floor(Math.random() * colors.length)];
-            let radius = Math.random() * 40 + 10; // 10 to 50
-            let newCircle = new CircularObj(this.mouseOffsetX, this.mouseOffsetY, radius, fillColor, strokeColor, this.context);
-            newCircle.board = this;
-            this.addObj(newCircle);
+            // Add multiple new circles on click
+            for (let i = 0; i < 3; i++) {
+                let colors = ["#FF5733", "#33FF57", "#3357FF", "#F033FF", "#FF33A1", "#33FFF0"];
+                let fillColor = colors[Math.floor(Math.random() * colors.length)];
+                let strokeColor = colors[Math.floor(Math.random() * colors.length)];
+                let radius = Math.random() * 40 + 10; // 10 to 50
+                let offsetX = (Math.random() - 0.5) * 100; // random offset -50 to 50
+                let offsetY = (Math.random() - 0.5) * 100;
+                let newCircle = new CircularObj(this.mouseOffsetX + offsetX, this.mouseOffsetY + offsetY, radius, fillColor, strokeColor, this.context);
+                this.addObj(newCircle);
+            }
         }
     };
 
