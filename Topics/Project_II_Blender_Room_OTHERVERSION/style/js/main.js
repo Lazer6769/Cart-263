@@ -3,9 +3,14 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 
 
+
 // Scene setup
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xdddddd);
+//scene.background = new THREE.Color();
+
+
+const canvas = document.getElementById('threeCanvas');
+
 
 // Camera setup
 const frustumSize = 10;
@@ -23,11 +28,12 @@ camera.position.set(5, 5, 5);
 camera.lookAt(0, 0, 0);
 
 // Renderer setup
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setClearColor(0xF3E6CE, 1);
 renderer.shadowMap.enabled = true;
-document.body.appendChild(renderer.domElement);
+// document.body.appendChild(renderer.domElement);
 
 // Lights
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -57,7 +63,7 @@ loader.setDRACOLoader(dracoLoader);
 /*
  * (PUT YOUR MODEL HERE)
  */
-loader.load('../../model/Room.gltf', function (gltf) {
+loader.load('../model/Room.gltf', function (gltf) {
     const model = gltf.scene;
 
     // Enable Shadows
@@ -67,6 +73,14 @@ loader.load('../../model/Room.gltf', function (gltf) {
             child.receiveShadow = true;
         }
     });
+
+    model.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+
+    model.position.x -= center.x;
+    model.position.y -= center.y;
+    model.position.z -= center.z;
 
     roomGroup.add(model);
 });
@@ -133,9 +147,11 @@ function opentPanel(title, body) {
 closePanel.addEventListener('click', () => {
     panel.classList.add('hidden');
 });
+window.requestAnimationFrame(animate);
 
 // Animate
 function animate() {
+
     requestAnimationFrame(animate);
 
     currentRotationY = THREE.MathUtils.lerp(currentRotationY, targetRotationY, 0.1);
@@ -161,5 +177,8 @@ window.addEventListener("resize", () => {
     resizeCamera();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+window.addEventListener("resize", resizeCamera);
+
 
 resizeCamera();
