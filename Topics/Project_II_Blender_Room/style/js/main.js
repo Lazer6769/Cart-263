@@ -3,31 +3,37 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 
 
+
 // Scene setup
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xdddddd);
+//scene.background = new THREE.Color();
+
+
+const canvas = document.getElementById('threeCanvas');
+
 
 // Camera setup
-const frustumSize = 10;
+let frustumSize = 10;
 const aspect = window.innerWidth / window.innerHeight;
 
 const camera = new THREE.OrthographicCamera(
-  (frustumSize * aspect) / -2,
-  (frustumSize * aspect) / 2,
+    (frustumSize * aspect) / -2,
+    (frustumSize * aspect) / 2,
     frustumSize / 2,
     frustumSize / -2,
-  0.1,
-  1000
+    0.1,
+    1000
 );
 camera.position.set(5, 5, 5);
 camera.lookAt(0, 0, 0);
 
 // Renderer setup
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setClearColor(0xF3E6CE, 1);
 renderer.shadowMap.enabled = true;
-document.body.appendChild(renderer.domElement);
+// document.body.appendChild(renderer.domElement);
 
 // Lights
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -57,18 +63,26 @@ loader.setDRACOLoader(dracoLoader);
 /*
  * (PUT YOUR MODEL HERE)
  */
-loader.load('model/Room.gltf', function (gltf) {
-  const model = gltf.scene;
+loader.load('../model/Room.gltf', function (gltf) {
+    const model = gltf.scene;
 
-  // Enable Shadows
-  model.traverse(function (child) {
-    if (child.isMesh) {
-      child.castShadow = true;
-      child.receiveShadow = true;
-    }
-  });
+    // Enable Shadows
+    model.traverse(function (child) {
+        if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+        }
+    });
 
-  roomGroup.add(model);
+    model.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+
+    model.position.x -= center.x;
+    model.position.y -= center.y;
+    model.position.z -= center.z;
+
+    roomGroup.add(model);
 });
 
 // Raycaster for interaction
@@ -91,16 +105,56 @@ window.addEventListener("click", () => {
     }
 });
 
-// Limited drag rotation
+// Zoom controls
+const zoomSpeed = 0.5;
+const minZoom = 2;
+const maxZoom = 20;
+
+const buttonIn = document.getElementById('buttonIn');
+const buttonOut = document.getElementById('buttonOut');
+
+buttonIn.addEventListener('click', () => {
+    const newSize = Math.max(minZoom, frustumSize - zoomSpeed);
+    updateZoom(newSize);
+});
+
+buttonOut.addEventListener('click', () => {
+    const newSize = Math.min(maxZoom, frustumSize + zoomSpeed);
+    updateZoom(newSize);
+});
+
+function updateZoom(size) {
+    frustumSize = size;
+    const aspect = window.innerWidth / window.innerHeight;
+    camera.left = (frustumSize * aspect) / -2;
+    camera.right = (frustumSize * aspect) / 2;
+    camera.top = frustumSize / 2;
+    camera.bottom = frustumSize / -2;
+    camera.updateProjectionMatrix();
+}
+
+// Limited drag rotation (all axes)
 let dragging = false;
-let dragX = 0
+let dragX = 0;
+let dragY = 0;
+let targetRotationX = 0;
 let targetRotationY = 0;
+let targetRotationZ = 0;
+let currentRotationX = 0;
 let currentRotationY = 0;
-const maxRotation = 0.35
+let currentRotationZ = 0;
+const maxRotation = {
+    x: 1,
+    y: 1.5
+    ,
+    z: 0.35
+};
+
 
 renderer.domElement.addEventListener("pointerdown", (event) => {
     dragging = true;
     dragX = event.clientX;
+    dragY = event.clientY;
 });
 
 window.addEventListener("pointerup", () => {
@@ -111,10 +165,23 @@ window.addEventListener("pointermove", (event) => {
     if (!dragging) return;
 
     const deltaX = event.clientX - dragX;
+    const deltaY = event.clientY - dragY;
     dragX = event.clientX;
+    dragY = event.clientY;
 
+    // X-axis rotation (vertical drag)
+    targetRotationX += deltaY * 0.005;
+    targetRotationX = THREE.MathUtils.clamp(targetRotationX, -maxRotation.x, maxRotation.x);
+
+    // Y-axis rotation (horizontal drag)
     targetRotationY += deltaX * 0.005;
-    targetRotationY = THREE.MathUtils.clamp(targetRotationY, -maxRotation, maxRotation);
+    targetRotationY = THREE.MathUtils.clamp(targetRotationY, -maxRotation.y, maxRotation.y);
+
+    // Z-axis rotation (shift + horizontal drag)
+    if (event.shiftKey) {
+        targetRotationZ += deltaX * 0.005;
+        targetRotationZ = THREE.MathUtils.clamp(targetRotationZ, -maxRotation.z, maxRotation.z);
+    }
 });
 
 //Panel
@@ -132,13 +199,21 @@ function opentPanel(title, body) {
 closePanel.addEventListener('click', () => {
     panel.classList.add('hidden');
 });
+window.requestAnimationFrame(animate);
 
 // Animate
 function animate() {
+
     requestAnimationFrame(animate);
 
+    // Smoothly interpolate all three rotation axes
+    currentRotationX = THREE.MathUtils.lerp(currentRotationX, targetRotationX, 0.1);
     currentRotationY = THREE.MathUtils.lerp(currentRotationY, targetRotationY, 0.1);
+    currentRotationZ = THREE.MathUtils.lerp(currentRotationZ, targetRotationZ, 0.1);
+
+    roomGroup.rotation.x += (currentRotationX - roomGroup.rotation.x) * 0.1;
     roomGroup.rotation.y += (currentRotationY - roomGroup.rotation.y) * 0.1;
+    roomGroup.rotation.z += (currentRotationZ - roomGroup.rotation.z) * 0.1;
 
     renderer.render(scene, camera);
 }
@@ -160,5 +235,8 @@ window.addEventListener("resize", () => {
     resizeCamera();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+window.addEventListener("resize", resizeCamera);
+
 
 resizeCamera();

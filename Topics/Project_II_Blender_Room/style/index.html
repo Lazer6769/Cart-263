@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,12 +15,18 @@
     }
   </script>
 </head>
+
 <body>
   <div id="app"></div>
 
   <div id="ui">
-    <div id="siteTitle">Project Secundus</div>
-    <div id="siteSub">Click objects to explore</div>
+    <div id="siteTitle">
+      <h1>Project Secundus</h1>
+
+    </div>
+    <div id="siteSub">
+      <p class="paragraph">Click objects to explore</p>
+    </div>
   </div>
 
   <div id="panel" class="hidden">
@@ -28,6 +35,27 @@
     <div id="panelBody">Content goes here.</div>
   </div>
 
-  <script type="module" src="main.js"></script>
+
+  <div id="Buttonholder">
+    <button id="buttonIn">IN</button>
+    <button id="buttonOut">OUT</button>
+  </div>
+
+<video id="video" loop muted crossOrigin="anonymous" playsinline style="display:none">
+			<source src="../textures/SMASHMELEE.mov" type="video/quicktime">
+		</video>
+
+  <!-- From Uiverse.io by Madflows
+  <div class="toggle-switch">
+    <label class="switch-label">
+      <input type="checkbox" class="checkbox">
+      <span class="slider"></span>
+    </label>
+  </div> -->
+
+  <script type="module" src="js/main.js"></script>
+
+  <canvas id="threeCanvas"></canvas>
 </body>
+
 </html>
