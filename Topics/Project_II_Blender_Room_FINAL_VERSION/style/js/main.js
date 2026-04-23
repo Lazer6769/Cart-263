@@ -173,10 +173,10 @@ let currentRotationX = 0;
 let currentRotationY = 0;
 let currentRotationZ = 0;
 const maxRotation = {
-    x: 0.75,
-    y: 0.75
+    x: 0.35,
+    y: 0.35
     ,
-    z: 0.75
+    z: 0.35
 };
 
 
