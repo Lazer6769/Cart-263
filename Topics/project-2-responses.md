@@ -1,4 +1,4 @@
-# ***Project 1 Responses, By: Jordan Lobasso*** 
+# ***Project 2 Responses, By: Jordan Lobasso*** 
 
 Benjamin Merhi 
 https://aydanmcgrail.github.io/cart263_FinalProject/: 
